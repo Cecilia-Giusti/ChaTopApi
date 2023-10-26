@@ -33,4 +33,4 @@ build/
 .vscode/
 
 ###DATA
-.properties
+*.properties
