@@ -1,7 +1,11 @@
 package com.ChaTopApiSpring2.controllers;
 
 import com.ChaTopApiSpring2.dto.request.MessageRequest;
+import com.ChaTopApiSpring2.dto.response.MessageResponse;
 import com.ChaTopApiSpring2.service.MessageService;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -32,12 +36,14 @@ public class MessageController {
      * @return A ResponseEntity with a confirmation message indicating the success of the operation.
      */
     @PostMapping("")
-    public ResponseEntity<Map<String, String>> createMessage(@Valid @RequestBody MessageRequest messageRequest) {
+    @ApiOperation(value = "Creates a new message")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Message send with success", response = MessageResponse.class)
+    })
+    public ResponseEntity<MessageResponse> createMessage(@Valid @RequestBody MessageRequest messageRequest) {
         messageService.addMessage(messageRequest);
 
-        Map<String, String> response = new HashMap<>();
-        response.put("message", "Message send with success");
-
+        MessageResponse response = new MessageResponse("Message send with success");
         return ResponseEntity.ok(response);
     }
 }

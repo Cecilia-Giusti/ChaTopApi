@@ -1,5 +1,6 @@
 package com.ChaTopApiSpring2.service;
 
+import com.ChaTopApiSpring2.dto.request.LoginRequest;
 import com.ChaTopApiSpring2.dto.request.RegisterRequest;
 import com.ChaTopApiSpring2.exceptions.AccountException;
 import com.ChaTopApiSpring2.exceptions.LoginException;
@@ -76,20 +77,20 @@ public class UserService {
     /**
      * Authenticates a user based on the provided login request.
      *
-     * @param loginDto The details required for user authentication.
+     * @param loginRequest The details required for user authentication.
      * @return A JWT token for the authenticated user.
      * @throws LoginException if authentication fails.
      */
-    public String loginUser(RegisterRequest loginDto) {
+    public String loginUser(LoginRequest loginRequest) {
         // Vérification de l'email
-        Optional<UserInfoModel> userOptional = userInfoRepository.findByEmail(loginDto.getEmail());
+        Optional<UserInfoModel> userOptional = userInfoRepository.findByEmail(loginRequest.getEmail());
 
         if (userOptional.isPresent()) {
             // Récupération de l'utilisateur
             UserInfoModel user = userOptional.get();
 
             // Vérification du mot de passe crypter
-            if  (passwordEncoder.matches(loginDto.getPassword(), user.getPassword())) {
+            if  (passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
                 // Si le mot de passe est correct, générez un token JWT
                 return jwtService.generateToken(user.getEmail());
             } else {

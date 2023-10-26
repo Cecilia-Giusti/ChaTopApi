@@ -1,9 +1,15 @@
 package com.ChaTopApiSpring2.controllers;
 
 import com.ChaTopApiSpring2.dto.request.RentalRequest;
+import com.ChaTopApiSpring2.dto.response.MessageResponse;
+import com.ChaTopApiSpring2.dto.response.RentalResponse;
+import com.ChaTopApiSpring2.dto.response.RentalsResponse;
 import com.ChaTopApiSpring2.model.RentalModel;
 import com.ChaTopApiSpring2.repository.RentalRepository;
 import com.ChaTopApiSpring2.service.RentalService;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -34,12 +40,17 @@ public class RentalsController {
     /**
      * Retrieves a list of all rentals.
      *
-     * @return A ResponseEntity containing a list of RentalModel.
+     * @return A ResponseEntity containing the RentalsResponse.
      */
     @GetMapping("")
-    public ResponseEntity<List<RentalModel>> getFullRentals() {
+    @ApiOperation(value = "Get full rentals")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200,  message = "OK", response =  RentalsResponse.class)
+    })
+    public ResponseEntity<RentalsResponse> getFullRentals() {
         List<RentalModel> rentals = rentalRepository.findAll();
-        return ResponseEntity.ok(rentals);
+        RentalsResponse response = new RentalsResponse(rentals);
+        return ResponseEntity.ok(response);
     }
 
     /**
@@ -51,19 +62,21 @@ public class RentalsController {
      * @throws IOException If there's an I/O error.
      */
     @PostMapping("")
-    public ResponseEntity<Map<String, String>> createRental(@Valid @ModelAttribute RentalRequest rentalRequest, BindingResult bindingResult) throws IOException {
+    @ApiOperation(value = "Creates a new rental")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Rental created !", response = MessageResponse.class)
+    })
+    public ResponseEntity<MessageResponse> createRental(@Valid @ModelAttribute RentalRequest rentalRequest, BindingResult bindingResult) throws IOException {
         if (bindingResult.hasErrors()) {
             Map<String, String> errors = new HashMap<>();
             bindingResult.getFieldErrors().forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
-            return ResponseEntity.badRequest().body(errors);
+            return ResponseEntity.badRequest().body((MessageResponse) errors);
         }
 
         rentalService.addRental(rentalRequest);
 
-        Map<String, String> response = new HashMap<>();
-        response.put("message", "Rental created !");
-
-        return ResponseEntity.ok(response);
+        MessageResponse response = new MessageResponse("Rental created !");
+        return ResponseEntity.ok( response);
     }
 
 
@@ -74,8 +87,13 @@ public class RentalsController {
      * @return A ResponseEntity containing details of the rental or an error message.
      */
     @GetMapping("/{id}")
-    public ResponseEntity<?> getRentalById(@PathVariable int id) {
-        Map<String, Object> response = rentalService.getRentalById(id);
+    @ApiOperation(value = "Get one rental with id")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200,  message = "OK", response =  RentalResponse.class)
+    })
+    public ResponseEntity<RentalResponse> getRentalById(@PathVariable int id) {
+        Map<String, Object> rental = rentalService.getRentalById(id);
+        RentalResponse response = new RentalResponse((RentalModel) rental);
         return ResponseEntity.ok(response);
     }
 
@@ -88,12 +106,15 @@ public class RentalsController {
      * @throws IOException If there's an I/O error.
      */
     @PutMapping("/{id}")
-    public ResponseEntity<Map<String, String>> updateRental(@PathVariable int id, @ModelAttribute RentalRequest rentalRequest) throws IOException {
+    @ApiOperation(value = "Update a rental")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Rental updated !", response = MessageResponse.class)
+    })
+    public ResponseEntity<MessageResponse> updateRental(@PathVariable int id, @ModelAttribute RentalRequest rentalRequest) throws IOException {
 
         rentalService.updateRental(id, rentalRequest);
 
-        Map<String, String> response = new HashMap<>();
-        response.put("message", "Rental updated !");
+        MessageResponse response = new MessageResponse("Rental created !");
         return ResponseEntity.ok(response);
     }
 
