@@ -14,6 +14,7 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 
 import java.io.IOException;
+import java.util.UUID;
 
 /**
  * Service class responsible for managing AWS S3 bucket operations.
@@ -58,11 +59,15 @@ public class S3Service {
      * @throws IOException If there's an error during file operations.
      */
     public String uploadFile(MultipartFile file) throws IOException {
-        String fileName = file.getOriginalFilename();
-        s3Client.putObject(PutObjectRequest.builder().bucket(bucketName).key(fileName).build(),
+        String originalFilename = file.getOriginalFilename();
+        assert originalFilename != null;
+        String extension = originalFilename.contains(".") ? originalFilename.substring(originalFilename.lastIndexOf(".")) : "";
+        String uniqueFileName = UUID.randomUUID().toString() + extension;
+
+        s3Client.putObject(PutObjectRequest.builder().bucket(bucketName).key(uniqueFileName).build(),
                 RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
 
-        return "https://" + bucketName + ".s3." + region + ".amazonaws.com/" + fileName;
+        return "https://" + bucketName + ".s3." + region + ".amazonaws.com/" + uniqueFileName;
     }
 
     /**
