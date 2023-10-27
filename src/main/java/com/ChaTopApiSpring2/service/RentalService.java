@@ -15,9 +15,9 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * Service class providing rental-related functionalities.
- * This service offers methods to handle rental-related logic, such as adding, updating, and retrieving rentals,
- * utilizing the repositories for data persistence and validation.
+ * Service class responsible for managing rental-related operations.
+ * This service provides methods for managing rentals, such as creating, fetching, and updating them.
+ * It interfaces with the database via the rental repository and integrates with other services, such as S3Service and UserService.
  */
 @Service
 public class RentalService {
@@ -32,10 +32,10 @@ public class RentalService {
     private UserService userService;
 
     /**
-     * Add a new rental to the database using the provided request data.
+     * Creates and persists a new rental entry in the database.
      *
-     * @param rentalRequest The data transfer object containing rental details.
-     * @throws IOException If there's an error during file operations (e.g., uploading to S3).
+     * @param rentalRequest The DTO containing the details of the rental to be created.
+     * @throws IOException If there's an issue with file operations, like uploading a picture to S3.
      */
     public void addRental(RentalRequest rentalRequest) throws IOException {
 
@@ -69,41 +69,29 @@ public class RentalService {
      * Retrieve rental details by ID.
      *
      * @param id The rental ID to be fetched.
-     * @return A map containing rental details.
+     * @return The details of the rental.
      * @throws RentalException If the rental is not found.
      */
-    public Map<String, Object> getRentalById(int id) {
-        Optional<RentalModel> rentalId = rentalRepository.findById(id);
+    public RentalModel getRentalById(int id) {
+        Optional<RentalModel> rentalOpt = rentalRepository.findById(id);
 
-        if (rentalId.isPresent()) {
-            RentalModel rental = rentalId.get();
-
-            // Construction du json
-            Map<String, Object> response = new HashMap<>();
-            response.put("id", rental.getId());
-            response.put("name", rental.getName());
-            response.put("surface", rental.getSurface());
-            response.put("price", rental.getPrice());
-            response.put("picture", rental.getPicture());
-            response.put("description", rental.getDescription());
-            response.put("owner_id", rental.getOwnerId());
-            response.put("created_at", rental.getCreatedAt());
-            response.put("updated_at", rental.getUpdatedAt());
-
-            return response;
+        if (rentalOpt.isPresent()) {
+            return rentalOpt.get();
         } else {
             throw new RentalException("Rental not found");
         }
     }
 
+
     /**
      * Update an existing rental's details using the provided request data.
      *
-     * @param id The ID of the rental to be updated.
-     * @param rentalRequest The data transfer object containing the updated rental details.
-     * @throws IOException If there's an error during file operations (e.g., uploading to S3).
+     * @param id The unique identifier of the rental to be updated.
+     * @param rentalRequest The DTO containing the updated rental details.
+     * @return The updated rental model.
+     * @throws IOException If there's an issue with file operations, like uploading a new picture to S3.
      */
-    public void updateRental(int id, RentalRequest rentalRequest) throws IOException {
+    public RentalModel updateRental(int id, RentalRequest rentalRequest) throws IOException {
         Optional<RentalModel> rentalOptional = rentalRepository.findById(id);
 
         if (rentalOptional.isEmpty()) {
@@ -126,6 +114,6 @@ public class RentalService {
         }
 
         rentalRepository.save(existingRental);
+        return existingRental;
     }
-
 }

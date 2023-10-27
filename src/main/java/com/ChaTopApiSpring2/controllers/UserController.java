@@ -1,7 +1,7 @@
 package com.ChaTopApiSpring2.controllers;
 
-import com.ChaTopApiSpring2.dto.response.RentalResponse;
 import com.ChaTopApiSpring2.dto.response.UserResponse;
+import com.ChaTopApiSpring2.model.UserInfoModel;
 import com.ChaTopApiSpring2.service.UserService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDateTime;
-import java.util.Map;
+import java.time.ZoneId;
+
 
 /**
  * Controller handling user-related operations.
@@ -40,14 +40,14 @@ public class UserController {
             @ApiResponse(code = 200, message = "OK", response = UserResponse.class),
     })
     public ResponseEntity<UserResponse> getUserById(@PathVariable int id) {
-        Map<String, Object> response = userService.getUserById(id);
+        UserInfoModel user = userService.getUserById(id);
 
         UserResponse userResponse = new UserResponse();
-        userResponse.setId((String) response.get("id"));
-        userResponse.setName((String) response.get("name"));
-        userResponse.setEmail((String) response.get("email"));
-        userResponse.setCreated_at((LocalDateTime) response.get("created_at"));
-        userResponse.setUpdated_at((LocalDateTime) response.get("updated_at"));
+        userResponse.setId(String.valueOf(user.getId()));
+        userResponse.setName(user.getName());
+        userResponse.setEmail(user.getEmail());
+        userResponse.setCreated_at(user.getCreatedAt().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
+        userResponse.setUpdated_at(user.getUpdatedAt().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
 
         return ResponseEntity.ok(userResponse);
     }

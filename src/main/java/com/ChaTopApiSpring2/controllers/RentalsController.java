@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Controller handling rental-related operations.
+ * Controller responsible for managing rental operations.
  */
 @RestController
 @Slf4j
@@ -40,7 +40,7 @@ public class RentalsController {
     /**
      * Retrieves a list of all rentals.
      *
-     * @return A ResponseEntity containing the RentalsResponse.
+     * @return A ResponseEntity containing a list of all rentals.
      */
     @GetMapping("")
     @ApiOperation(value = "Get full rentals")
@@ -54,12 +54,12 @@ public class RentalsController {
     }
 
     /**
-     * Creates a new rental.
+     * Registers a new rental based on the provided rental details.
      *
-     * @param rentalRequest Details of the rental to be created.
-     * @param bindingResult Object holding validation results.
-     * @return A ResponseEntity with a confirmation message or validation errors.
-     * @throws IOException If there's an I/O error.
+     * @param rentalRequest The details of the new rental.
+     * @param bindingResult Holds the results of the validation for the provided rental details.
+     * @return A ResponseEntity containing a message indicating the outcome of the rental registration.
+     * @throws IOException If there's an error during processing.
      */
     @PostMapping("")
     @ApiOperation(value = "Creates a new rental")
@@ -79,12 +79,11 @@ public class RentalsController {
         return ResponseEntity.ok( response);
     }
 
-
     /**
-     * Retrieves a rental by its ID.
+     * Retrieves details of a specific rental by its ID.
      *
-     * @param id The ID of the rental to retrieve.
-     * @return A ResponseEntity containing details of the rental or an error message.
+     * @param id The unique identifier of the rental.
+     * @return A ResponseEntity wrapping the details of the specified rental.
      */
     @GetMapping("/{id}")
     @ApiOperation(value = "Get one rental with id")
@@ -92,18 +91,20 @@ public class RentalsController {
             @ApiResponse(code = 200,  message = "OK", response =  RentalResponse.class)
     })
     public ResponseEntity<RentalResponse> getRentalById(@PathVariable int id) {
-        Map<String, Object> rental = rentalService.getRentalById(id);
-        RentalResponse response = new RentalResponse((RentalModel) rental);
+        RentalModel rental = rentalService.getRentalById(id);
+
+        RentalResponse response = new RentalResponse(rental);
+
         return ResponseEntity.ok(response);
     }
 
     /**
-     * Updates a rental by its ID.
+     * Updates the details of a specific rental by its ID.
      *
-     * @param id The ID of the rental to update.
-     * @param rentalRequest Updated details of the rental.
-     * @return A ResponseEntity with a confirmation message.
-     * @throws IOException If there's an I/O error.
+     * @param id The unique identifier of the rental to be modified.
+     * @param rentalRequest Contains the updated details for the rental.
+     * @return A ResponseEntity conveying the outcome of the rental update operation.
+     * @throws IOException If there is an issue during the update process.
      */
     @PutMapping("/{id}")
     @ApiOperation(value = "Update a rental")
@@ -111,12 +112,10 @@ public class RentalsController {
             @ApiResponse(code = 200, message = "Rental updated !", response = MessageResponse.class)
     })
     public ResponseEntity<MessageResponse> updateRental(@PathVariable int id, @ModelAttribute RentalRequest rentalRequest) throws IOException {
+        RentalModel updatedRental = rentalService.updateRental(id, rentalRequest);
 
-        rentalService.updateRental(id, rentalRequest);
-
-        MessageResponse response = new MessageResponse("Rental created !");
+        MessageResponse response = new MessageResponse("Rental updated !");
         return ResponseEntity.ok(response);
     }
-
 
 }

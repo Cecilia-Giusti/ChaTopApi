@@ -4,6 +4,7 @@ import com.ChaTopApiSpring2.dto.request.LoginRequest;
 import com.ChaTopApiSpring2.dto.request.RegisterRequest;
 import com.ChaTopApiSpring2.dto.response.TokenResponse;
 import com.ChaTopApiSpring2.dto.response.UserResponse;
+import com.ChaTopApiSpring2.model.UserInfoModel;
 import com.ChaTopApiSpring2.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -17,9 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.time.LocalDateTime;
-import java.util.Map;
-
+import java.time.ZoneId;
 /**
  * Controller handling authentication operations such as user registration and login.
  */
@@ -67,10 +66,9 @@ public class AuthController {
     }
 
     /**
-     * Retrieves the information of the authenticated user.
+     * Retrieves the details of the currently authenticated user.
      *
-     * @param request The incoming HTTP request.
-     * @return A map containing the user's information.
+     * @return A ResponseEntity containing the UserResponse object of the authenticated user.
      */
     @GetMapping("/me")
     @ApiOperation(value = "Retrieve the information of the authenticated user")
@@ -78,16 +76,18 @@ public class AuthController {
             @ApiResponse(code = 200, message = "OK", response = UserResponse.class),
     })
     public ResponseEntity<UserResponse> getUserInfo(HttpServletRequest request) {
-        Map<String, Object> response = userService.getUserInfo();
+        UserInfoModel userModel = userService.getUserInfo();
 
         UserResponse userResponse = new UserResponse();
-        userResponse.setId((String) response.get("id"));
-        userResponse.setName((String) response.get("name"));
-        userResponse.setEmail((String) response.get("email"));
-        userResponse.setCreated_at((LocalDateTime) response.get("created_at"));
-        userResponse.setUpdated_at((LocalDateTime) response.get("updated_at"));
+        userResponse.setId(String.valueOf(userModel.getId()));
+        userResponse.setName(userModel.getName());
+        userResponse.setEmail(userModel.getEmail());
+        userResponse.setCreated_at(userModel.getCreatedAt().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
+        userResponse.setUpdated_at(userModel.getUpdatedAt().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
 
         return ResponseEntity.ok(userResponse);
     }
+
+
 }
 

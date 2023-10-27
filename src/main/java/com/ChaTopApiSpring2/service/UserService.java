@@ -50,48 +50,47 @@ public class UserService {
     }
 
     /**
-     * Retrieves user information using the email from the currently authenticated token.
+     * Registers a new user with the given details.
      *
-     * @return An optional containing the user information if found, empty otherwise.
+     * @param registerRequest The user's registration details.
+     * @return A JWT token generated for the registered user.
+     * @throws RegisterException if registration fails, typically due to existing email.
      */
     public String registerUser(RegisterRequest registerRequest) {
-        // Vérifiez si l'email est déjà utilisé
         Optional<UserInfoModel> existingUser = userInfoRepository.findByEmail(registerRequest.getEmail());
         if (existingUser.isPresent()) {
             throw new RegisterException("Bad name, email or password");
         }
-        // Création du nouvel utilisateur
         UserInfoModel newUser = new UserInfoModel();
         newUser.setName(registerRequest.getName());
         newUser.setEmail(registerRequest.getEmail());
 
         newUser.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
 
-        // Sauvegardez l'utilisateur dans la base de données
+
         userInfoRepository.save(newUser);
 
-        // Création du token
         return jwtService.generateToken(newUser.getEmail());
     }
 
     /**
-     * Authenticates a user based on the provided login request.
+     * Authenticates a user based on the provided login details.
      *
-     * @param loginRequest The details required for user authentication.
+     * @param loginRequest The user's login details.
      * @return A JWT token for the authenticated user.
-     * @throws LoginException if authentication fails.
+     * @throws LoginException if authentication fails due to incorrect credentials.
      */
     public String loginUser(LoginRequest loginRequest) {
-        // Vérification de l'email
+
         Optional<UserInfoModel> userOptional = userInfoRepository.findByEmail(loginRequest.getEmail());
 
         if (userOptional.isPresent()) {
-            // Récupération de l'utilisateur
+
             UserInfoModel user = userOptional.get();
 
-            // Vérification du mot de passe crypter
+
             if  (passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
-                // Si le mot de passe est correct, générez un token JWT
+
                 return jwtService.generateToken(user.getEmail());
             } else {
                 throw new LoginException(" Bad token");
@@ -102,55 +101,32 @@ public class UserService {
     }
 
     /**
-     * Retrieves the detailed information of the currently authenticated user.
+     * Retrieves the information of the user based on the authentication token.
      *
-     * @return A map containing the details of the authenticated user.
-     * @throws AccountException if the user is not found.
+     * @return The UserInfoModel object of the authenticated user.
+     * @throws AccountException if the user associated with the token is not found.
      */
-    public Map<String, Object> getUserInfo() {
+    public UserInfoModel getUserInfo() {
         Optional<UserInfoModel> userOptional = getUserByEmailFromToken();
 
         if (userOptional.isPresent()) {
-            UserInfoModel user = userOptional.get();
-
-            // Construction du json
-            Map<String, Object> response = new HashMap<>();
-            response.put("id", user.getId());
-            response.put("name", user.getName());
-            response.put("email", user.getEmail());
-            response.put("created_at", user.getCreatedAt());
-            response.put("updated_at", user.getUpdatedAt());
-
-            return response;
+            return userOptional.get();
         } else {
             throw new AccountException("bad token");
         }
     }
 
     /**
-     * Retrieves the detailed information of the currently authenticated user.
+     * Retrieves a user by their ID.
      *
-     * @return A map containing the details of the authenticated user.
-     * @throws AccountException if the user is not found.
+     * @param id The ID of the user to retrieve.
+     * @return The UserInfoModel object for the specified user ID.
+     * @throws AccountException if a user with the given ID is not found.
      */
-    public Map<String, Object> getUserById(int id) {
+    public UserInfoModel getUserById(int id) {
         Optional<UserInfoModel> userId = userInfoRepository.findById(id);
 
-        if (userId.isPresent()) {
-            UserInfoModel user = userId.get();
-
-            // Construction du json
-            Map<String, Object> response = new HashMap<>();
-            response.put("id", user.getId());
-            response.put("name", user.getName());
-            response.put("email", user.getEmail());
-            response.put("created_at", user.getCreatedAt());
-            response.put("updated_at", user.getUpdatedAt());
-
-            return response;
-        } else {
-            throw new AccountException("User not found");
-        }
+        return userId.orElseThrow(() -> new AccountException("User not found"));
     }
 
 }
