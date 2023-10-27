@@ -38,6 +38,7 @@ public class UserController {
     @ApiOperation(value = "Get user with id")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK", response = UserResponse.class),
+            @ApiResponse(code = 401, message = "Bad token", response = String.class)
     })
     public ResponseEntity<UserResponse> getUserById(@PathVariable int id) {
         UserInfoModel user = userService.getUserById(id);

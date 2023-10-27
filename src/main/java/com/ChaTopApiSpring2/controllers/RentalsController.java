@@ -45,7 +45,8 @@ public class RentalsController {
     @GetMapping("")
     @ApiOperation(value = "Get full rentals")
     @ApiResponses(value = {
-            @ApiResponse(code = 200,  message = "OK", response =  RentalsResponse.class)
+            @ApiResponse(code = 200,  message = "OK", response =  RentalsResponse.class),
+            @ApiResponse(code = 401, message = "Bad token", response = String.class)
     })
     public ResponseEntity<RentalsResponse> getFullRentals() {
         List<RentalModel> rentals = rentalRepository.findAll();
@@ -64,7 +65,8 @@ public class RentalsController {
     @PostMapping("")
     @ApiOperation(value = "Creates a new rental")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Rental created !", response = MessageResponse.class)
+            @ApiResponse(code = 200, message = "Rental created !", response = MessageResponse.class),
+            @ApiResponse(code = 401, message = "Bad token", response = String.class)
     })
     public ResponseEntity<MessageResponse> createRental(@Valid @ModelAttribute RentalRequest rentalRequest, BindingResult bindingResult) throws IOException {
         if (bindingResult.hasErrors()) {
@@ -88,7 +90,8 @@ public class RentalsController {
     @GetMapping("/{id}")
     @ApiOperation(value = "Get one rental with id")
     @ApiResponses(value = {
-            @ApiResponse(code = 200,  message = "OK", response =  RentalResponse.class)
+            @ApiResponse(code = 200,  message = "OK", response =  RentalResponse.class),
+            @ApiResponse(code = 401, message = "Bad token", response = String.class)
     })
     public ResponseEntity<RentalResponse> getRentalById(@PathVariable int id) {
         RentalModel rental = rentalService.getRentalById(id);
@@ -109,7 +112,8 @@ public class RentalsController {
     @PutMapping("/{id}")
     @ApiOperation(value = "Update a rental")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Rental updated !", response = MessageResponse.class)
+            @ApiResponse(code = 200, message = "Rental updated !", response = MessageResponse.class),
+            @ApiResponse(code = 401, message = "Bad token", response = String.class),
     })
     public ResponseEntity<MessageResponse> updateRental(@PathVariable int id, @ModelAttribute RentalRequest rentalRequest) throws IOException {
         RentalModel updatedRental = rentalService.updateRental(id, rentalRequest);

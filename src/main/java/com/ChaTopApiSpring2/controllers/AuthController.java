@@ -41,6 +41,7 @@ public class AuthController {
     @PostMapping("/register")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK", response = TokenResponse.class),
+            @ApiResponse(code = 400, message = "Bad name, email or password", response = String.class)
     })
     public ResponseEntity<TokenResponse> createUser( @RequestBody @Valid RegisterRequest registerRequest) {
         String token = userService.registerUser(registerRequest);
@@ -58,6 +59,7 @@ public class AuthController {
     @ApiOperation(value = "Log in the user")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK", response = TokenResponse.class),
+            @ApiResponse(code = 401, message = "Bad name, email or password", response = String.class)
     })
     public ResponseEntity<TokenResponse> loginUser(@RequestBody LoginRequest loginRequest) {
         String token = userService.loginUser(loginRequest);
@@ -74,6 +76,7 @@ public class AuthController {
     @ApiOperation(value = "Retrieve the information of the authenticated user")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK", response = UserResponse.class),
+            @ApiResponse(code = 401, message = "Bad token", response = String.class)
     })
     public ResponseEntity<UserResponse> getUserInfo(HttpServletRequest request) {
         UserInfoModel userModel = userService.getUserInfo();

@@ -36,7 +36,9 @@ public class MessageController {
     @PostMapping("")
     @ApiOperation(value = "Creates a new message")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Message send with success", response = MessageResponse.class)
+            @ApiResponse(code = 200, message = "Message send with success", response = MessageResponse.class),
+            @ApiResponse(code = 401, message = "Bad token", response = String.class),
+            @ApiResponse(code = 400, message = "Bad user_id, message or rental_id", response = String.class)
     })
     public ResponseEntity<MessageResponse> createMessage(@Valid @RequestBody MessageRequest messageRequest) {
         messageService.addMessage(messageRequest);
