@@ -42,7 +42,7 @@ public class RentalService {
 
         Optional<UserInfoModel> userOptional = userService.getUserByEmailFromToken();
         if (userOptional.isEmpty()) {
-            throw new AccountException("User not found");
+            throw new AccountException("Bad token");
         }
         UserInfoModel user = userOptional.get();
 
@@ -54,9 +54,18 @@ public class RentalService {
 
 
         if (rentalRequest.getPicture() != null && !rentalRequest.getPicture().isEmpty()) {
-            String imageUrl = s3Service.uploadFile(rentalRequest.getPicture());
-            newRental.setPicture(imageUrl);
+            try {
+                String imageUrl = s3Service.uploadFile(rentalRequest.getPicture());
+                newRental.setPicture(imageUrl);
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new RuntimeException("Problème avec S3", e);
+            }
+
         }
+
+
+
 
         newRental.setDescription(String.valueOf(rentalRequest.getDescription()));
         newRental.setOwnerId(user.getId());

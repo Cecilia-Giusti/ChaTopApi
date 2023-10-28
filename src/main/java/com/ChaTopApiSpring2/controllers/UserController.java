@@ -47,8 +47,16 @@ public class UserController {
         userResponse.setId(String.valueOf(user.getId()));
         userResponse.setName(user.getName());
         userResponse.setEmail(user.getEmail());
-        userResponse.setCreated_at(user.getCreatedAt().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
-        userResponse.setUpdated_at(user.getUpdatedAt().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
+
+        if (user.getCreatedAt() != null) {
+            userResponse.setCreated_at(user.getCreatedAt().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
+        }
+
+        if (user.getUpdatedAt() != null) {
+            userResponse.setUpdated_at(user.getUpdatedAt().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
+        } else {
+            userResponse.setUpdated_at(null);
+        }
 
         return ResponseEntity.ok(userResponse);
     }

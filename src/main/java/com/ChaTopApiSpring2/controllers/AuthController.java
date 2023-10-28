@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.time.ZoneId;
+
 /**
  * Controller handling authentication operations such as user registration and login.
  */
@@ -43,10 +44,10 @@ public class AuthController {
             @ApiResponse(code = 200, message = "OK", response = TokenResponse.class),
             @ApiResponse(code = 400, message = "Bad name, email or password", response = String.class)
     })
-    public ResponseEntity<TokenResponse> createUser( @RequestBody @Valid RegisterRequest registerRequest) {
-        String token = userService.registerUser(registerRequest);
-        TokenResponse tokenResponse = new TokenResponse(token);
-        return ResponseEntity.ok(tokenResponse);
+    public ResponseEntity<TokenResponse> createUser(@RequestBody @Valid RegisterRequest registerRequest) {
+            String token = userService.registerUser(registerRequest);
+            TokenResponse tokenResponse = new TokenResponse(token);
+            return ResponseEntity.ok(tokenResponse);
     }
 
     /**
@@ -85,8 +86,16 @@ public class AuthController {
         userResponse.setId(String.valueOf(userModel.getId()));
         userResponse.setName(userModel.getName());
         userResponse.setEmail(userModel.getEmail());
-        userResponse.setCreated_at(userModel.getCreatedAt().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
-        userResponse.setUpdated_at(userModel.getUpdatedAt().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
+
+        if (userModel.getCreatedAt() != null) {
+            userResponse.setCreated_at(userModel.getCreatedAt().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
+        }
+
+        if (userModel.getUpdatedAt() != null) {
+            userResponse.setUpdated_at(userModel.getUpdatedAt().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
+        } else {
+            userResponse.setUpdated_at(null);
+        }
 
         return ResponseEntity.ok(userResponse);
     }

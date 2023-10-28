@@ -57,17 +57,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     /**
-     * Handles general exceptions that aren't caught by other handlers.
-     *
-     * @param ex The caught exception.
-     * @return A response entity with a generic error message and HTTP status code.
-     */
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<String> handleGeneralException(Exception ex) {
-        return new ResponseEntity<>("An unexpected error has occurred.", HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-    /**
      * Handles exceptions related to rental operations.
      *
      * @param ex The caught exception.
@@ -88,4 +77,42 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<String> handleIncorrectRentalException(MessageException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
+
+    /**
+     * Handles general exceptions that aren't caught by other handlers.
+     *
+     * @param ex The caught exception.
+     * @return A response entity with a generic error message and HTTP status code.
+     */
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<String> handleGeneralException(Exception ex) {
+        return new ResponseEntity<>("An unexpected error has occurred.", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Override
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(
+            MethodArgumentNotValidException ex,
+            HttpHeaders headers,
+            HttpStatus status,
+            WebRequest request) {
+
+        Map<String, String> erreurs = new HashMap<>();
+
+        for (FieldError error : ex.getBindingResult().getFieldErrors()) {
+            erreurs.put(error.getField(), error.getDefaultMessage());
+        }
+
+
+        if (erreurs.containsKey("password")) {
+            return new ResponseEntity<>("Bad name, email or password", HttpStatus.BAD_REQUEST);
+        }
+
+        if (erreurs.containsKey("email")) {
+            return new ResponseEntity<>("Bad name, email or password", HttpStatus.BAD_REQUEST);
+        }
+
+        return new ResponseEntity<>(erreurs, HttpStatus.BAD_REQUEST);
+    }
+
+
 }
